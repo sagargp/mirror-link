@@ -1,0 +1,4 @@
+pyaudio
+matplotlib
+seaborn
+numpy
