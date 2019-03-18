@@ -6,3 +6,6 @@ services:
       - .:/app
     ports:
       - "8003:5000"
+    privileged: true
+    devices:
+      - /dev/snd:/dev/snd
