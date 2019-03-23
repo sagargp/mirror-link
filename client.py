@@ -10,7 +10,7 @@ def send(ip, port, data):
     sock.sendto(data, (ip, int(port)))
 
 
-def main(chunk_size, server, port):
+def main(chunk_size, server, port, name):
     audio = pyaudio.PyAudio()
 
     # Claim the microphone
@@ -34,26 +34,11 @@ def main(chunk_size, server, port):
     while running:
         try:
             audio_data = stream.read(chunk_size, exception_on_overflow=False)
-
             # get and convert the data to float
-            audio_data = np.fromstring(audio_data, np.int16)
-
-            print(max(audio_data))
-
+            # audio_data = np.fromstring(audio_data, np.int16)
+            # print(max(audio_data))
+            data = struct.pack('10s2038s', name[0:10].encode('ascii'), audio_data)
             send(server, port, audio_data)
-
-            # Fast Fourier Transform, 10*log10(abs) is to scale it to dB
-            # and make sure it's not imaginary
-            dfft = 10.*np.log10(abs(np.fft.rfft(audio_data)))
-
-            # Force the new data into the plot, but without redrawing axes.
-            # audio_plot.set_xdata(np.arange(len(audio_data)))
-            # audio_plot.set_ydata(audio_data)
-            # dfft_plot.set_xdata(np.arange(len(dfft))*10.)
-            # dfft_plot.set_ydata(dfft)
-
-            # # Show the updated plot, but without blocking
-            # plt.pause(0.01)
         except KeyboardInterrupt:
             running = False
 
@@ -67,6 +52,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('server', default='127.0.0.1')
     parser.add_argument('port', default='9999')
+    parser.add_argument('name', default='bernie')
     args = parser.parse_args()
 
-    main(chunk_size=1024, server=args.server, port=args.port)
+    main(chunk_size=2048, server=args.server, port=args.port, name=args.name)

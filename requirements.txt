@@ -2,3 +2,4 @@ pyaudio
 matplotlib
 seaborn
 numpy
+flask
