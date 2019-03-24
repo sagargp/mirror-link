@@ -56,6 +56,11 @@ def main(chunk_size, ip, port):
     ax[0].set_ylim(-5000, 5000)
     ax[0].set_title("Raw Audio Signal")
 
+    # dfft_plot, = ax[1].plot(x, y)
+    # ax[1].set_xlim(0, 1024)
+    # ax[1].set_ylim(0, 200)
+    # ax[1].set_title("DFFT Signal")
+
     # Show the plot, but without blocking updates
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.3)
@@ -64,9 +69,16 @@ def main(chunk_size, ip, port):
     while running:
         try:
             data = q.get_nowait()
+            dfft = 20 * np.log10(np.abs(np.fft.rfft(data)))
+
+            print(np.argmax(dfft))
+
             # Force the new data into the plot, but without redrawing axes.
             audio_plot.set_xdata(np.arange(len(data)))
             audio_plot.set_ydata(data)
+
+            # dfft_plot.set_xdata(np.arange(len(dfft))*20.)
+            # dfft_plot.set_ydata(dfft)
 
             # Show the updated plot, but without blocking
             plt.pause(0.001)

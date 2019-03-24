@@ -38,7 +38,7 @@ def main(chunk_size, server, port, name):
             # audio_data = np.fromstring(audio_data, np.int16)
             # print(max(audio_data))
             data = struct.pack('10s2038s', name[0:10].encode('ascii'), audio_data)
-            send(server, port, audio_data)
+            send(server, port, data)
         except KeyboardInterrupt:
             running = False
 
