@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+
+import "google/protobuf/empty.proto";
+
+
+message AudioChunk {
+    bytes data = 1;
+}
+
+service AudioService {
+    rpc sendAudio(AudioChunk) returns (google.protobuf.Empty);
+}

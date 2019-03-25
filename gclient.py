@@ -1,15 +1,21 @@
 import pyaudio
-import socket
-import struct
 import argparse
+import grpc
+import mirror_pb2
+import mirror_pb2_grpc
 
 
-def send(ip, port, data):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(data, (ip, int(port)))
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('server', default='127.0.0.1')
+    parser.add_argument('port', default='9999')
+    parser.add_argument('chunk_size', type=int, default=2048)
+    parser.add_argument('name', default='bernie')
+    args = parser.parse_args()
 
+    channel = grpc.insecure_channel(f'{args.server}:{args.port}')
+    stub = mirror_pb2_grpc.AudioServiceStub(channel)
 
-def main(chunk_size, server, port, name):
     audio = pyaudio.PyAudio()
 
     # Claim the microphone
@@ -32,12 +38,15 @@ def main(chunk_size, server, port, name):
     running = True
     while running:
         try:
-            audio_data = stream.read(chunk_size, exception_on_overflow=False)
+            audio_data = stream.read(args.chunk_size, exception_on_overflow=False)
+
             # get and convert the data to float
             # audio_data = np.fromstring(audio_data, np.int16)
             # print(max(audio_data))
-            data = struct.pack('10s2038s', name[0:10].encode('ascii'), audio_data)
-            send(server, port, data)
+
+            stub.sendAudio(
+                mirror_pb2.AudioChunk(data=audio_data)
+            )
         except KeyboardInterrupt:
             running = False
 
@@ -47,11 +56,3 @@ def main(chunk_size, server, port, name):
     audio.terminate()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('server', default='127.0.0.1')
-    parser.add_argument('port', default='9999')
-    parser.add_argument('name', default='bernie')
-    args = parser.parse_args()
-
-    main(chunk_size=2048, server=args.server, port=args.port, name=args.name)
