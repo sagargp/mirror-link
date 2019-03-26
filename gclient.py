@@ -10,7 +10,6 @@ if __name__ == '__main__':
     parser.add_argument('server', default='127.0.0.1')
     parser.add_argument('port', default='9999')
     parser.add_argument('chunk_size', type=int, default=2048)
-    parser.add_argument('name', default='bernie')
     args = parser.parse_args()
 
     channel = grpc.insecure_channel(f'{args.server}:{args.port}')
@@ -30,23 +29,14 @@ if __name__ == '__main__':
 
     print("\n+---------------------------------+")
     print("| Press Ctrl+C to Break Recording |")
-    print( "+---------------------------------+\n")
-
-    # audio_plot, dfft_plot = setup_plots()
+    print("+---------------------------------+\n")
 
     # Loop so program doesn't end while the stream is open
     running = True
     while running:
         try:
             audio_data = stream.read(args.chunk_size, exception_on_overflow=False)
-
-            # get and convert the data to float
-            # audio_data = np.fromstring(audio_data, np.int16)
-            # print(max(audio_data))
-
-            stub.sendAudio(
-                mirror_pb2.AudioChunk(data=audio_data)
-            )
+            stub.sendAudio(mirror_pb2.AudioChunk(data=audio_data))
         except KeyboardInterrupt:
             running = False
 
