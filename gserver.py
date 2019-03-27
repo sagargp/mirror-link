@@ -1,3 +1,5 @@
+import time
+import pyaudio
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
@@ -50,18 +52,31 @@ if __name__ == '__main__':
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.3)
 
+    # create an audio object
+    audio = pyaudio.PyAudio()
+
+    # open stream based on the wave object which has been input.
+    stream = audio.open(
+        format=pyaudio.paInt16,
+        channels=1,
+        rate=44100,
+        output=True)
+
     running = True
+    streaming = False
+
     while running:
         try:
             data = q.get()
-            data = np.frombuffer(data, np.int16)
+            # if np.abs(np.average(np.frombuffer(data, np.int16))) > 30.0:
+                # Force the new data into the plot, but without redrawing axes.
+                # audio_plot.set_xdata(np.arange(len(data)))
+                # audio_plot.set_ydata(data)
+                # stream.write(data)
+            stream.write(data)
 
-            # Force the new data into the plot, but without redrawing axes.
-            audio_plot.set_xdata(np.arange(len(data)))
-            audio_plot.set_ydata(data)
-
-            # Show the updated plot, but without blocking
-            plt.pause(0.001)
+                # Show the updated plot, but without blocking
+                # plt.pause(1/44100.)
             q.task_done()
         except KeyboardInterrupt:
             running = False
@@ -70,3 +85,5 @@ if __name__ == '__main__':
 
     q.join()
     server.stop(0)
+    stream.close()
+    audio.terminate()

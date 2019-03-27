@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0cmirror.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n\nAudioChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\x42\n\x0c\x41udioService\x12\x32\n\tsendAudio\x12\x0b.AudioChunk\x1a\x16.google.protobuf.Empty(\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0cmirror.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n\nAudioChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32@\n\x0c\x41udioService\x12\x30\n\tsendAudio\x12\x0b.AudioChunk\x1a\x16.google.protobuf.Emptyb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -76,7 +76,7 @@ _AUDIOSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   serialized_start=73,
-  serialized_end=139,
+  serialized_end=137,
   methods=[
   _descriptor.MethodDescriptor(
     name='sendAudio',

@@ -15,7 +15,7 @@ class AudioServiceStub(object):
     Args:
       channel: A grpc.Channel.
     """
-    self.sendAudio = channel.stream_unary(
+    self.sendAudio = channel.unary_unary(
         '/AudioService/sendAudio',
         request_serializer=mirror__pb2.AudioChunk.SerializeToString,
         response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
@@ -26,7 +26,7 @@ class AudioServiceServicer(object):
   # missing associated documentation comment in .proto file
   pass
 
-  def sendAudio(self, request_iterator, context):
+  def sendAudio(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -36,7 +36,7 @@ class AudioServiceServicer(object):
 
 def add_AudioServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
-      'sendAudio': grpc.stream_unary_rpc_method_handler(
+      'sendAudio': grpc.unary_unary_rpc_method_handler(
           servicer.sendAudio,
           request_deserializer=mirror__pb2.AudioChunk.FromString,
           response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
