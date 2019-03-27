@@ -1,3 +1,4 @@
+import numpy as np
 import pyaudio
 import argparse
 import grpc
@@ -37,6 +38,12 @@ if __name__ == '__main__':
         try:
             audio_data = stream.read(args.chunk_size, exception_on_overflow=False)
             stub.sendAudio(mirror_pb2.AudioChunk(data=audio_data))
+            # av = int(np.abs(np.average(np.frombuffer(audio_data, np.int16))))
+            # if av > 80.0:
+            #     transmitting = not transmitting
+            # if transmitting:
+            #     stub.sendAudio(mirror_pb2.AudioChunk(data=audio_data))
+            #     print('transmitting')
         except KeyboardInterrupt:
             running = False
 
