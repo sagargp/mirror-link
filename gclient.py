@@ -1,4 +1,5 @@
 import numpy as np
+import uuid
 import pyaudio
 import argparse
 import grpc
@@ -10,7 +11,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('server', default='127.0.0.1')
     parser.add_argument('port', default='9999')
-    parser.add_argument('chunk_size', type=int, default=2048)
     args = parser.parse_args()
 
     channel = grpc.insecure_channel(f'{args.server}:{args.port}')
@@ -28,16 +28,15 @@ if __name__ == '__main__':
     # Open the connection and start streaming the data
     stream.start_stream()
 
-    print("\n+---------------------------------+")
-    print("| Press Ctrl+C to Break Recording |")
-    print("+---------------------------------+\n")
+    # def _listen():
+    #     for message in stub.GetAudioStream(mirror_pb2.Empty()):
 
     # Loop so program doesn't end while the stream is open
     running = True
     while running:
         try:
-            audio_data = stream.read(args.chunk_size, exception_on_overflow=False)
-            stub.sendAudio(mirror_pb2.AudioChunk(data=audio_data))
+            audio_data = stream.read(2048, exception_on_overflow=False)
+            stub.SendAudio(mirror_pb2.AudioChunk(sender='Sagar', data=audio_data, id=uuid.uuid4().hex))
             # av = int(np.abs(np.average(np.frombuffer(audio_data, np.int16))))
             # if av > 80.0:
             #     transmitting = not transmitting

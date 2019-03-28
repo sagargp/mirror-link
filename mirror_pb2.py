@@ -12,7 +12,6 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -20,11 +19,34 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0cmirror.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n\nAudioChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32@\n\x0c\x41udioService\x12\x30\n\tsendAudio\x12\x0b.AudioChunk\x1a\x16.google.protobuf.Emptyb\x06proto3')
-  ,
-  dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
+  serialized_pb=_b('\n\x0cmirror.proto\"\x07\n\x05\x45mpty\"6\n\nAudioChunk\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x32Y\n\x0c\x41udioService\x12 \n\tSendAudio\x12\x0b.AudioChunk\x1a\x06.Empty\x12\'\n\x0eGetAudioStream\x12\x06.Empty\x1a\x0b.AudioChunk0\x01\x62\x06proto3')
+)
 
 
+
+
+_EMPTY = _descriptor.Descriptor(
+  name='Empty',
+  full_name='Empty',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=16,
+  serialized_end=23,
+)
 
 
 _AUDIOCHUNK = _descriptor.Descriptor(
@@ -35,8 +57,22 @@ _AUDIOCHUNK = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='data', full_name='AudioChunk.data', index=0,
-      number=1, type=12, cpp_type=9, label=1,
+      name='id', full_name='AudioChunk.id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='sender', full_name='AudioChunk.sender', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='AudioChunk.data', index=2,
+      number=3, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -53,12 +89,20 @@ _AUDIOCHUNK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=45,
-  serialized_end=71,
+  serialized_start=25,
+  serialized_end=79,
 )
 
+DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 DESCRIPTOR.message_types_by_name['AudioChunk'] = _AUDIOCHUNK
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), dict(
+  DESCRIPTOR = _EMPTY,
+  __module__ = 'mirror_pb2'
+  # @@protoc_insertion_point(class_scope:Empty)
+  ))
+_sym_db.RegisterMessage(Empty)
 
 AudioChunk = _reflection.GeneratedProtocolMessageType('AudioChunk', (_message.Message,), dict(
   DESCRIPTOR = _AUDIOCHUNK,
@@ -75,16 +119,25 @@ _AUDIOSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=73,
-  serialized_end=137,
+  serialized_start=81,
+  serialized_end=170,
   methods=[
   _descriptor.MethodDescriptor(
-    name='sendAudio',
-    full_name='AudioService.sendAudio',
+    name='SendAudio',
+    full_name='AudioService.SendAudio',
     index=0,
     containing_service=None,
     input_type=_AUDIOCHUNK,
-    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    output_type=_EMPTY,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetAudioStream',
+    full_name='AudioService.GetAudioStream',
+    index=1,
+    containing_service=None,
+    input_type=_EMPTY,
+    output_type=_AUDIOCHUNK,
     serialized_options=None,
   ),
 ])
