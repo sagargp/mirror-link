@@ -1,4 +1,3 @@
-import numpy as np
 import uuid
 import pyaudio
 import argparse
@@ -28,21 +27,11 @@ if __name__ == '__main__':
     # Open the connection and start streaming the data
     stream.start_stream()
 
-    # def _listen():
-    #     for message in stub.GetAudioStream(mirror_pb2.Empty()):
-
-    # Loop so program doesn't end while the stream is open
     running = True
     while running:
         try:
             audio_data = stream.read(2048, exception_on_overflow=False)
             stub.SendAudio(mirror_pb2.AudioChunk(sender='Sagar', data=audio_data, id=uuid.uuid4().hex))
-            # av = int(np.abs(np.average(np.frombuffer(audio_data, np.int16))))
-            # if av > 80.0:
-            #     transmitting = not transmitting
-            # if transmitting:
-            #     stub.sendAudio(mirror_pb2.AudioChunk(data=audio_data))
-            #     print('transmitting')
         except KeyboardInterrupt:
             running = False
 
