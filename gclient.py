@@ -22,7 +22,9 @@ if __name__ == '__main__':
         format=pyaudio.paInt16,
         channels=1,
         rate=44100,
-        input=True)
+        input_device_index=2,
+        input=True,
+        frames_per_buffer=1024)
 
     # Open the connection and start streaming the data
     stream.start_stream()
@@ -30,7 +32,7 @@ if __name__ == '__main__':
     running = True
     while running:
         try:
-            audio_data = stream.read(2048, exception_on_overflow=False)
+            audio_data = stream.read(1024, exception_on_overflow=False)
             stub.SendAudio(mirror_pb2.AudioChunk(sender='Sagar', data=audio_data, id=uuid.uuid4().hex))
         except KeyboardInterrupt:
             running = False
