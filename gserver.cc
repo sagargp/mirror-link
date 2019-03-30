@@ -1,8 +1,7 @@
 #include <iostream>
-#include <map>
-#include <memory>
-#include <mutex>
 #include <string>
+#include <queue>
+#include <mutex>
 
 #include <grpc++/grpc++.h>
 #include "mirror.grpc.pb.h"
@@ -15,11 +14,38 @@ class AudioServiceImpl final : public AudioService::Service
             const AudioChunk *audioChunk,
             Empty *empty) override
         {
-            mLastMessage.set_id(audioChunk->id());
-            mLastMessage.set_sender(audioChunk->sender());
-            mLastMessage.set_data(audioChunk->data());
+            // push messages into the input queue as fast as possible
+            mInputLock.lock();
+            mIncomingMessages.push(*audioChunk);
 
-            // implement SendAudio() here
+            // if it's been longer than 1 * sampling_rate (44.1khz) then sum all the samples we took and add it to the output queue
+            if (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mLastTime).count() > mLoopTimeNs)
+            {
+                std::int16_t summed[1024] = {0};
+
+                while (!mIncomingMessages.empty())
+                {
+                    auto currentMessage = mIncomingMessages.front();
+                    mIncomingMessages.pop();
+
+                    std::int16_t * messageInt = (std::int16_t *) &currentMessage.data()[0u];
+
+                    for (int i = 0; i < 1024; i++)
+                        summed[i] += messageInt[i];
+                }
+
+                AudioChunk outgoing;
+                outgoing.set_id(audioChunk->id());
+                outgoing.set_sender(audioChunk->sender());
+                outgoing.set_data(std::string((const char *) summed, 2048));
+
+                mOutputLock.lock();
+                mOutgoingMessages.push(outgoing);
+                mOutputLock.unlock();
+
+                mLastTime = std::chrono::high_resolution_clock::now();
+            }
+            mInputLock.unlock();
             return grpc::Status::OK;
         }
 
@@ -27,16 +53,23 @@ class AudioServiceImpl final : public AudioService::Service
             const Empty *empty,
             grpc::ServerWriter<AudioChunk> *audioChunkStream) override
         {
-            audioChunkStream->Write(mLastMessage);
-            // implement GetAudioStream() here
+            while (!mOutgoingMessages.empty())
+            {
+                mOutputLock.lock();
+                audioChunkStream->Write(mOutgoingMessages.front());
+                mOutgoingMessages.pop();
+                mOutputLock.unlock();
+            }
             return grpc::Status::OK;
         }
 
     private:
-        AudioChunk mLastMessage;
-
-      // The actual database.
-      std::map<std::string, std::string> string_db_;
+        std::mutex mInputLock;
+        std::mutex mOutputLock;
+        std::chrono::time_point<std::chrono::high_resolution_clock> mLastTime;
+        std::queue<AudioChunk> mIncomingMessages;
+        std::queue<AudioChunk> mOutgoingMessages;
+        const int mLoopTimeNs = 45351;
 };
 
 void RunServer() {

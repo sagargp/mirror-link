@@ -1,6 +1,3 @@
-import time
-import threading
-import uuid
 import pyaudio
 import argparse
 import grpc
@@ -19,13 +16,11 @@ if __name__ == '__main__':
 
     audio = pyaudio.PyAudio()
 
-    # Claim the microphone
     stream = audio.open(
         format=pyaudio.paInt16,
         channels=1,
         rate=44100,
-        # input_device_index=1,
-        input=True,
+        output=True,
         frames_per_buffer=1024)
 
     # Open the connection and start streaming the data
@@ -34,8 +29,14 @@ if __name__ == '__main__':
     running = True
     while running:
         try:
-            audio_data = stream.read(1024, exception_on_overflow=False)
-            stub.SendAudio(mirror_pb2.AudioChunk(sender='Sagar', data=audio_data, id=uuid.uuid4().hex))
+            last_played = 0
+            print('start')
+            for chunk in stub.GetAudioStream(mirror_pb2.Empty()):
+                if chunk.id != last_played:
+                    print('read')
+                    stream.write(chunk.data, 1024)
+                    last_played = chunk.id
+            print('stop')
         except KeyboardInterrupt:
             running = False
 
