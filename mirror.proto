@@ -11,5 +11,6 @@ message AudioChunk {
 
 service AudioService {
     rpc SendAudio(AudioChunk) returns (Empty);
+    rpc SendAudioStream(stream AudioChunk) returns (Empty);
     rpc GetAudioStream(Empty) returns (stream AudioChunk);
 }

@@ -19,6 +19,11 @@ class AudioServiceStub(object):
         request_serializer=mirror__pb2.AudioChunk.SerializeToString,
         response_deserializer=mirror__pb2.Empty.FromString,
         )
+    self.SendAudioStream = channel.stream_unary(
+        '/AudioService/SendAudioStream',
+        request_serializer=mirror__pb2.AudioChunk.SerializeToString,
+        response_deserializer=mirror__pb2.Empty.FromString,
+        )
     self.GetAudioStream = channel.unary_stream(
         '/AudioService/GetAudioStream',
         request_serializer=mirror__pb2.Empty.SerializeToString,
@@ -37,6 +42,13 @@ class AudioServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def SendAudioStream(self, request_iterator, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
   def GetAudioStream(self, request, context):
     # missing associated documentation comment in .proto file
     pass
@@ -49,6 +61,11 @@ def add_AudioServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'SendAudio': grpc.unary_unary_rpc_method_handler(
           servicer.SendAudio,
+          request_deserializer=mirror__pb2.AudioChunk.FromString,
+          response_serializer=mirror__pb2.Empty.SerializeToString,
+      ),
+      'SendAudioStream': grpc.stream_unary_rpc_method_handler(
+          servicer.SendAudioStream,
           request_deserializer=mirror__pb2.AudioChunk.FromString,
           response_serializer=mirror__pb2.Empty.SerializeToString,
       ),

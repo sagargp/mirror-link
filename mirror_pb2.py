@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0cmirror.proto\"\x07\n\x05\x45mpty\"6\n\nAudioChunk\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x32Y\n\x0c\x41udioService\x12 \n\tSendAudio\x12\x0b.AudioChunk\x1a\x06.Empty\x12\'\n\x0eGetAudioStream\x12\x06.Empty\x1a\x0b.AudioChunk0\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0cmirror.proto\"\x07\n\x05\x45mpty\"6\n\nAudioChunk\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x32\x83\x01\n\x0c\x41udioService\x12 \n\tSendAudio\x12\x0b.AudioChunk\x1a\x06.Empty\x12(\n\x0fSendAudioStream\x12\x0b.AudioChunk\x1a\x06.Empty(\x01\x12\'\n\x0eGetAudioStream\x12\x06.Empty\x1a\x0b.AudioChunk0\x01\x62\x06proto3')
 )
 
 
@@ -119,8 +119,8 @@ _AUDIOSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=81,
-  serialized_end=170,
+  serialized_start=82,
+  serialized_end=213,
   methods=[
   _descriptor.MethodDescriptor(
     name='SendAudio',
@@ -132,9 +132,18 @@ _AUDIOSERVICE = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='SendAudioStream',
+    full_name='AudioService.SendAudioStream',
+    index=1,
+    containing_service=None,
+    input_type=_AUDIOCHUNK,
+    output_type=_EMPTY,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='GetAudioStream',
     full_name='AudioService.GetAudioStream',
-    index=1,
+    index=2,
     containing_service=None,
     input_type=_EMPTY,
     output_type=_AUDIOCHUNK,
