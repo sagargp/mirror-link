@@ -33,8 +33,8 @@ if __name__ == '__main__':
     running = True
     while running:
         try:
-            audio_data = stream.read(2048, exception_on_overflow=False)
-            stub.SendAudio(mirror_pb2.AudioChunk(sender='Sagar', data=audio_data, id=uuid.uuid4().hex))
+            audio_data = stream.read(4410, exception_on_overflow=False)
+            stub.SendAudio(mirror_pb2.AudioChunk(sender='Bagar', data=audio_data, id=uuid.uuid4().hex))
         except KeyboardInterrupt:
             running = False
 

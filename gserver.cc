@@ -8,8 +8,8 @@
 #include "mirror.grpc.pb.h"
 
 
-#define FRAMESPERBUFFER 4410
-#define LOOPTIMEMS 100
+#define FRAMESPERBUFFER 2048
+#define LOOPTIMEMS 46
 
 
 class AudioServiceImpl final : public AudioService::Service
@@ -18,21 +18,21 @@ class AudioServiceImpl final : public AudioService::Service
         void enqueueChunk(const AudioChunk &chunk)
         {
             std::lock_guard<std::mutex> _(mInputLock);
-            mIncomingMessages.push_back(chunk);
+            mIncomingMessages.insert(std::pair<std::string, AudioChunk>(chunk.sender(), chunk));
 
             if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - mLastTime).count() > LOOPTIMEMS)
             {
                 std::cout << "summing together " << mIncomingMessages.size() << " chunks" << std::endl;
                 float summed_float[FRAMESPERBUFFER] = {0.0f};
 
-                for (auto currentMessage : mIncomingMessages)
+                for (std::pair<std::string, AudioChunk> currentMessage : mIncomingMessages)
                 {
-                    std::int16_t * messageInt = (std::int16_t *) &currentMessage.data()[0u];
+                    std::int16_t * messageInt = (std::int16_t *) &currentMessage.second.data()[0u];
                     for (int i = 0; i < FRAMESPERBUFFER; i++)
                     {
                         float a = summed_float[i];
-                        float b = messageInt[i];
-                        summed_float[i] = a + b - a * b / std::numeric_limits<float>::max();
+                        float b= (float) messageInt[i];
+                        summed_float[i] = a + b - a * b;
                     }
                 }
                 mIncomingMessages.clear();
@@ -85,9 +85,9 @@ class AudioServiceImpl final : public AudioService::Service
     private:
         std::mutex mInputLock;
         std::mutex mOutputLock;
-        std::chrono::time_point<std::chrono::high_resolution_clock> mLastTime;
-        std::vector<AudioChunk> mIncomingMessages;
+        std::map<std::string, AudioChunk> mIncomingMessages;
         std::queue<AudioChunk> mOutgoingMessages;
+        std::chrono::time_point<std::chrono::high_resolution_clock> mLastTime;
 };
 
 void RunServer() {
