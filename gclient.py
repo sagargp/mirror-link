@@ -1,3 +1,5 @@
+import numpy as np
+import queue
 import time
 import threading
 import uuid
@@ -10,6 +12,7 @@ import mirror_pb2_grpc
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('name')
     parser.add_argument('server', default='127.0.0.1')
     parser.add_argument('port', default='9999')
     args = parser.parse_args()
@@ -21,22 +24,26 @@ if __name__ == '__main__':
 
     # Claim the microphone
     stream = audio.open(
-        format=pyaudio.paInt8,
+        format=pyaudio.paInt16,
         channels=1,
         rate=44100,
         input=True,
-        frames_per_buffer=4410)  # (n_channels * samples) per buffer (in our case 1)
+        frames_per_buffer=2048)
 
     # Open the connection and start streaming the data
     stream.start_stream()
 
-    running = True
-    while running:
-        try:
-            audio_data = stream.read(4410, exception_on_overflow=False)
-            stub.SendAudio(mirror_pb2.AudioChunk(sender='Bagar', data=audio_data, id=uuid.uuid4().hex))
-        except KeyboardInterrupt:
-            running = False
+    def get_chunk():
+        while True:
+            data = stream.read(2048, exception_on_overflow=False)
+            chunk = mirror_pb2.AudioChunk(
+                sender=args.name,
+                data=data,
+                id=uuid.uuid4().hex)
+            yield chunk
+
+    while True:
+        stub.SendAudioStream(get_chunk())
 
     # Close up shop
     stream.stop_stream()
