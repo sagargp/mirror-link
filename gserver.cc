@@ -8,75 +8,32 @@
 #include "mirror.grpc.pb.h"
 
 
-
-#define FRAMESPERBUFFER 2048
-#define LOOPTIMENS 22675
+#define FRAMESPERBUFFER 4410
+#define LOOPTIMEMS 100
 
 
 class AudioServiceImpl final : public AudioService::Service
 {
     public:
-        grpc::Status SendAudioStream(grpc::ServerContext *context, grpc::ServerReader<AudioChunk> *reader, Empty *empty) override
+        void enqueueChunk(const AudioChunk &chunk)
         {
-            AudioChunk chunk;
+            std::lock_guard<std::mutex> _(mInputLock);
+            mIncomingMessages.push_back(chunk);
 
-            while (reader->Read(&chunk))
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - mLastTime).count() > LOOPTIMEMS)
             {
-                std::lock_guard<std::mutex> _(mInputLock);
-                mIncomingMessages.push_back(chunk);
-
-                if (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mLastTime).count() > LOOPTIMENS)
-                {
-                    float summed_float[FRAMESPERBUFFER] = {0.0f};
-
-                    for (auto currentMessage : mIncomingMessages)
-                    {
-                        std::int16_t * messageInt = (std::int16_t *) &currentMessage.data()[0u];
-                        for (int i = 0; i < FRAMESPERBUFFER; i++)
-                            summed_float[i] += float(messageInt[i]);
-                    }
-                    mIncomingMessages.clear();
-
-                    std::int16_t summed[FRAMESPERBUFFER];
-
-                    for (int i = 0; i < FRAMESPERBUFFER; i++)
-                        summed[i] = std::min(std::int16_t(summed_float[i]), std::numeric_limits<std::int16_t>::max());
-
-                    AudioChunk outgoing;
-                    outgoing.set_id(chunk.id());
-                    outgoing.set_sender(chunk.sender());
-
-                    // Send out the data as a string -- that is, 2048 int16's become 4096 chars
-                    outgoing.set_data(std::string((const char *) summed, 2*FRAMESPERBUFFER));
-
-                    {
-                        std::lock_guard<std::mutex> _out(mOutputLock);
-                        mOutgoingMessages.push(outgoing);
-                    }
-                    mLastTime = std::chrono::high_resolution_clock::now();
-                }
-            }
-            return grpc::Status::OK;
-        }
-
-        grpc::Status SendAudio(grpc::ServerContext *context, const AudioChunk *audioChunk, Empty *empty) override
-        {
-            // audioChunk->data() contains 2048 int16's that represent 2048 samples of audio
-            // push these into an input queue as fast as we can
-            std::lock_guard<std::mutex> _in(mInputLock);
-
-            mIncomingMessages.push_back(*audioChunk);
-
-            // if a sampling cycle has passed, take all the messages (2048 samples each) and sum them together
-            if (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mLastTime).count() > LOOPTIMENS)
-            {
+                std::cout << "summing together " << mIncomingMessages.size() << " chunks" << std::endl;
                 float summed_float[FRAMESPERBUFFER] = {0.0f};
 
                 for (auto currentMessage : mIncomingMessages)
                 {
                     std::int16_t * messageInt = (std::int16_t *) &currentMessage.data()[0u];
                     for (int i = 0; i < FRAMESPERBUFFER; i++)
-                        summed_float[i] += float(messageInt[i]);
+                    {
+                        float a = summed_float[i];
+                        float b = messageInt[i];
+                        summed_float[i] = a + b - a * b / std::numeric_limits<float>::max();
+                    }
                 }
                 mIncomingMessages.clear();
 
@@ -86,31 +43,41 @@ class AudioServiceImpl final : public AudioService::Service
                     summed[i] = std::min(std::int16_t(summed_float[i]), std::numeric_limits<std::int16_t>::max());
 
                 AudioChunk outgoing;
-                outgoing.set_id(audioChunk->id());
-                outgoing.set_sender(audioChunk->sender());
+                outgoing.set_id(chunk.id());
+                outgoing.set_sender(chunk.sender());
 
                 // Send out the data as a string -- that is, 2048 int16's become 4096 chars
                 outgoing.set_data(std::string((const char *) summed, 2*FRAMESPERBUFFER));
 
-                std::lock_guard<std::mutex> _out(mOutputLock);
-                mOutgoingMessages.push(outgoing);
-                mOutputLock.unlock();
-
+                {
+                    std::lock_guard<std::mutex> _out(mOutputLock);
+                    mOutgoingMessages.push(outgoing);
+                }
                 mLastTime = std::chrono::high_resolution_clock::now();
             }
+        }
+
+        grpc::Status SendAudioStream(grpc::ServerContext *context, grpc::ServerReader<AudioChunk> *reader, Empty *empty) override
+        {
+            AudioChunk chunk;
+            while (reader->Read(&chunk))
+                enqueueChunk(chunk);
             return grpc::Status::OK;
         }
 
-        grpc::Status GetAudioStream(grpc::ServerContext *context,
-            const Empty *empty,
-            grpc::ServerWriter<AudioChunk> *audioChunkStream) override
+        grpc::Status SendAudio(grpc::ServerContext *context, const AudioChunk *chunk, Empty *empty) override
+        {
+            enqueueChunk(*chunk);
+            return grpc::Status::OK;
+        }
+
+        grpc::Status GetAudioStream(grpc::ServerContext *context, const Empty *empty, grpc::ServerWriter<AudioChunk> *audioChunkStream) override
         {
             while (!mOutgoingMessages.empty())
             {
-                mOutputLock.lock();
+                std::lock_guard<std::mutex> _(mOutputLock);
                 audioChunkStream->Write(mOutgoingMessages.front());
                 mOutgoingMessages.pop();
-                mOutputLock.unlock();
             }
             return grpc::Status::OK;
         }

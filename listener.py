@@ -21,7 +21,7 @@ if __name__ == '__main__':
         channels=1,
         rate=44100,
         output=True,
-        frames_per_buffer=2048)
+        frames_per_buffer=4410)
 
     # Open the connection and start streaming the data
     stream.start_stream()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
             for chunk in stub.GetAudioStream(mirror_pb2.Empty()):
                 if chunk.id != last_played:
                     print('read')
-                    stream.write(chunk.data, 2048)
+                    stream.write(chunk.data, 4410)
                     last_played = chunk.id
             print('stop')
         except KeyboardInterrupt:

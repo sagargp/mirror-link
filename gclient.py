@@ -25,7 +25,7 @@ if __name__ == '__main__':
         channels=1,
         rate=44100,
         input=True,
-        frames_per_buffer=2048)  # (n_channels * samples) per buffer (in our case 1)
+        frames_per_buffer=4410)  # (n_channels * samples) per buffer (in our case 1)
 
     # Open the connection and start streaming the data
     stream.start_stream()
