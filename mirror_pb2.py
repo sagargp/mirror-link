@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x0cmirror.proto\"\x07\n\x05\x45mpty\"6\n\nAudioChunk\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x32\x83\x01\n\x0c\x41udioService\x12 \n\tSendAudio\x12\x0b.AudioChunk\x1a\x06.Empty\x12(\n\x0fSendAudioStream\x12\x0b.AudioChunk\x1a\x06.Empty(\x01\x12\'\n\x0eGetAudioStream\x12\x06.Empty\x1a\x0b.AudioChunk0\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0cmirror.proto\"\x07\n\x05\x45mpty\"(\n\x06Sender\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08\x63\x61llsign\x18\x02 \x01(\t\"6\n\nAudioChunk\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06sender\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x32\x83\x01\n\x0c\x41udioService\x12 \n\tSendAudio\x12\x0b.AudioChunk\x1a\x06.Empty\x12(\n\x0fSendAudioStream\x12\x0b.AudioChunk\x1a\x06.Empty(\x01\x12\'\n\x0eGetAudioStream\x12\x06.Empty\x1a\x0b.AudioChunk0\x01\x62\x06proto3')
 )
 
 
@@ -46,6 +46,44 @@ _EMPTY = _descriptor.Descriptor(
   ],
   serialized_start=16,
   serialized_end=23,
+)
+
+
+_SENDER = _descriptor.Descriptor(
+  name='Sender',
+  full_name='Sender',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='Sender.name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='callsign', full_name='Sender.callsign', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=25,
+  serialized_end=65,
 )
 
 
@@ -89,11 +127,12 @@ _AUDIOCHUNK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=25,
-  serialized_end=79,
+  serialized_start=67,
+  serialized_end=121,
 )
 
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
+DESCRIPTOR.message_types_by_name['Sender'] = _SENDER
 DESCRIPTOR.message_types_by_name['AudioChunk'] = _AUDIOCHUNK
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -103,6 +142,13 @@ Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), d
   # @@protoc_insertion_point(class_scope:Empty)
   ))
 _sym_db.RegisterMessage(Empty)
+
+Sender = _reflection.GeneratedProtocolMessageType('Sender', (_message.Message,), dict(
+  DESCRIPTOR = _SENDER,
+  __module__ = 'mirror_pb2'
+  # @@protoc_insertion_point(class_scope:Sender)
+  ))
+_sym_db.RegisterMessage(Sender)
 
 AudioChunk = _reflection.GeneratedProtocolMessageType('AudioChunk', (_message.Message,), dict(
   DESCRIPTOR = _AUDIOCHUNK,
@@ -119,8 +165,8 @@ _AUDIOSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=82,
-  serialized_end=213,
+  serialized_start=124,
+  serialized_end=255,
   methods=[
   _descriptor.MethodDescriptor(
     name='SendAudio',

@@ -3,6 +3,11 @@ syntax = "proto3";
 
 message Empty {}
 
+message Sender {
+    string name = 1;
+    string callsign = 2;
+}
+
 message AudioChunk {
     string id = 1;
     string sender = 2;

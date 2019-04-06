@@ -31,8 +31,8 @@ class AudioServiceImpl final : public AudioService::Service
                     for (int i = 0; i < FRAMESPERBUFFER; i++)
                     {
                         float a = summed_float[i];
-                        float b= (float) messageInt[i];
-                        summed_float[i] = a + b - a * b;
+                        float b = (float) messageInt[i];
+                        summed_float[i] = a + b;
                     }
                 }
                 mIncomingMessages.clear();
@@ -40,7 +40,9 @@ class AudioServiceImpl final : public AudioService::Service
                 std::int16_t summed[FRAMESPERBUFFER];
 
                 for (int i = 0; i < FRAMESPERBUFFER; i++)
-                    summed[i] = std::min(std::int16_t(summed_float[i]), std::numeric_limits<std::int16_t>::max());
+                    summed[i] = std::clamp(std::int16_t(summed_float[i]),
+                     std::numeric_limits<std::int16_t>::min(),
+                     std::numeric_limits<std::int16_t>::max());
 
                 AudioChunk outgoing;
                 outgoing.set_id(chunk.id());
@@ -73,9 +75,9 @@ class AudioServiceImpl final : public AudioService::Service
 
         grpc::Status GetAudioStream(grpc::ServerContext *context, const Empty *empty, grpc::ServerWriter<AudioChunk> *audioChunkStream) override
         {
+            std::lock_guard<std::mutex> _(mOutputLock);
             while (!mOutgoingMessages.empty())
             {
-                std::lock_guard<std::mutex> _(mOutputLock);
                 audioChunkStream->Write(mOutgoingMessages.front());
                 mOutgoingMessages.pop();
             }

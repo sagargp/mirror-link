@@ -1,6 +1,6 @@
-CXX = g++
+CXX = clang++
 CPPFLAGS += -I/usr/local/include -pthread
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++17 -g
 LDFLAGS += -L/usr/local/lib -lgrpc++_unsecure -lgrpc -lprotobuf -lpthread -ldl
 PROTOC = protoc
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
@@ -21,7 +21,7 @@ all: $(EXECUTABLES) py
 	$(PROTOC) --cpp_out=. $<
 
 gserver: mirror.pb.o mirror.grpc.pb.o gserver.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+	$(CXX) $^ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -g -o $@
 
 # Rule for producing the Python protobuf bindings
 py: mirror.proto
